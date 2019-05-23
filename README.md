@@ -4,35 +4,6 @@
 
 This is a Rails-based workflow service that replaced SDR's Java-based workflow service.  It is consumed by the users of dor-workflow-client (argo, hydrus, hydra_etd, pre-assembly, dor-indexing-app, robots) and *soon* the goobi application (currently proxying through dor-services-app).
 
-## Build
-Build the production image
-```
-docker build -t suldlss/workflow-server:latest .
-```
-
-## Run the development stack
-```
-$ docker-compose up -d
-[FIRST RUN]
-$ docker-compose run app rake db:setup
-$ docker-compose stop
-$ docker-compose up -d
-[ -------- ]
-```
-
-If you want to connect to the container:
-```
-$ docker ps (to retrieve the container id)
-$ docker exec -it (container id) /bin/sh
-```
-
-Testing:
-
-```
-docker-compose run -e "RAILS_ENV=test" app rake db:create db:migrate
-docker-compose run -e "RAILS_ENV=test" app rake spec
-```
-
 ## Routes:
 `GET    /:repo/objects/:druid/lifecycle` - Returns the milestones in the lifecycle that have been completed
 
@@ -57,4 +28,54 @@ These processes are used by robot-master to discover which steps need to be perf
 GET    /workflow_queue/lane_ids
 GET    /workflow_queue/all_queued
 GET    /workflow_queue
+```
+
+## Resque Jobs
+
+When a workflow step is set to done, the service calculates which workflow steps
+are ready to be worked on and enqueues Resque jobs for them.  The queues are named
+for the workflow and priority.  For example:
+
+```
+accessionWF_high
+accessionWF_default
+accessionWF_low
+assemblyWF_high
+assemblyWF_default
+assemblyWF_low
+disseminationWF_high
+disseminationWF_default
+disseminationWF_low
+...
+```
+
+## Developers
+
+### Build
+Build the production image
+```
+docker build -t suldlss/workflow-server:latest .
+```
+
+### Run the development stack
+```
+$ docker-compose up -d
+[FIRST RUN]
+$ docker-compose run app rake db:setup
+$ docker-compose stop
+$ docker-compose up -d
+[ -------- ]
+```
+
+If you want to connect to the container:
+```
+$ docker ps (to retrieve the container id)
+$ docker exec -it (container id) /bin/sh
+```
+
+Testing:
+
+```
+docker-compose run -e "RAILS_ENV=test" app rake db:create db:migrate
+docker-compose run -e "RAILS_ENV=test" app rake spec
 ```

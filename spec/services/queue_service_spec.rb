@@ -14,7 +14,7 @@ RSpec.describe QueueService do
 
     it 'enqueues to Resque and updates status' do
       service.enqueue
-      expect(Resque).to have_received(:enqueue_to).with(:"dor_assemblyWF_jp2-create_default",
+      expect(Resque).to have_received(:enqueue_to).with('assemblyWF_default',
                                                         'Robots::DorRepo::Assembly::Jp2Create', step.druid)
       expect(step.status).to eq('queued')
     end
@@ -31,8 +31,8 @@ RSpec.describe QueueService do
   describe '#queue_name' do
     let(:queue_name) { service.send(:queue_name) }
 
-    it 'create correct queue_name' do
-      expect(queue_name).to eq('dor_assemblyWF_jp2-create_default')
+    it 'creates a queue_name from workflow and lane' do
+      expect(queue_name).to eq('assemblyWF_default')
     end
   end
 
